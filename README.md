@@ -28,6 +28,8 @@ This repo includes an issue workflow that:
 
 - Set a repository variable `COPILOT_ASSIGNEE` to the Copilot coding agent login
   (e.g. `github-copilot[bot]` or your org’s Copilot agent account).
+- (Optional) Set `ISSUE_REPLY_BODY` to override the auto-reply message.
+  Use `\n` for line breaks.
 
 **Bug detection rules (auto-assign):**
 

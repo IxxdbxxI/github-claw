@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       COPILOT_ASSIGNEE: ${{ vars.COPILOT_ASSIGNEE }}
+      ISSUE_REPLY_BODY: ${{ vars.ISSUE_REPLY_BODY }}
     steps:
       - name: Auto reply and assign Copilot for bugs
         uses: actions/github-script@v7
@@ -59,13 +60,18 @@ jobs:
               copilotNormalized && assignees.includes(copilotNormalized);
 
             if (action === 'opened') {
-              const commentBody = [
+              const defaultCommentBody = [
                 '感谢反馈！我们已收到该 Issue，会尽快处理。',
                 '为了更快定位问题，请补充：复现步骤、预期行为、实际行为、环境信息（版本/系统/日志）。',
                 '',
                 'Thanks for the report! We will take a look shortly.',
                 'Please add repro steps, expected vs actual behavior, and environment details (version/OS/logs) to speed up triage.',
               ].join('\n');
+              const configuredReply = process.env.ISSUE_REPLY_BODY;
+              const commentBody =
+                configuredReply && configuredReply.trim()
+                  ? configuredReply.replace(/\\n/g, '\n')
+                  : defaultCommentBody;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -75,7 +81,16 @@ jobs:
               });
             }
 
-            if (!isBug || !copilotAssignee || alreadyAssigned) {
+            if (!isBug) {
+              return;
+            }
+
+            if (!copilotAssignee) {
+              core.info('COPILOT_ASSIGNEE is not set; skipping assignment.');
+              return;
+            }
+
+            if (alreadyAssigned) {
               return;
             }
 
