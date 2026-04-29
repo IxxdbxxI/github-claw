@@ -23,6 +23,21 @@ ALLOWED_FORMATS = {
     "video": {"mp4", "webm", "mkv"},
 }
 
+INPUT_EXTENSION = ".upload"
+OUTPUT_EXTENSION_MAP = {
+    "jpg": "jpg",
+    "jpeg": "jpg",
+    "png": "png",
+    "webp": "webp",
+    "mp3": "mp3",
+    "aac": "aac",
+    "wav": "wav",
+    "ogg": "ogg",
+    "mp4": "mp4",
+    "webm": "webm",
+    "mkv": "mkv",
+}
+
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 init_db(DB_PATH)
@@ -78,12 +93,11 @@ def handle_media(media_type: str):
 
     job_id = str(uuid.uuid4())
     safe_name = secure_filename(upload.filename)
-    suffix = Path(safe_name).suffix.lower() if safe_name else ""
-    if not suffix:
-        suffix = ".bin"
-    input_path = ensure_safe_path(UPLOAD_DIR / f"{job_id}{suffix}", UPLOAD_DIR)
+    input_path = ensure_safe_path(UPLOAD_DIR / f"{job_id}{INPUT_EXTENSION}", UPLOAD_DIR)
     upload.save(input_path)
-    output_extension = "jpg" if output_format == "jpeg" else output_format
+    output_extension = OUTPUT_EXTENSION_MAP.get(output_format)
+    if not output_extension:
+        return jsonify({"error": "不支持的输出格式。"}), 400
     output_path = ensure_safe_path(OUTPUT_DIR / f"{job_id}.{output_extension}", OUTPUT_DIR)
 
     options = {
@@ -152,10 +166,13 @@ def job_download(job_id: str):
     job = fetch_job(DB_PATH, job_id)
     if not job or not job.get("output_path"):
         return jsonify({"error": "任务不存在或未生成输出。"}), 404
-    output_path = ensure_safe_path(Path(job["output_path"]), OUTPUT_DIR)
+    output_extension = OUTPUT_EXTENSION_MAP.get(job.get("output_format"))
+    if not output_extension:
+        return jsonify({"error": "输出格式无效。"}), 400
+    output_path = ensure_safe_path(OUTPUT_DIR / f"{job_id}.{output_extension}", OUTPUT_DIR)
     if not output_path.exists():
         return jsonify({"error": "输出文件不存在。"}), 404
-    filename = f"{job_id}.{job.get('output_format') or output_path.suffix.lstrip('.')}"
+    filename = f"{job_id}.{output_extension}"
     return send_file(output_path, as_attachment=True, download_name=filename)
 
 
