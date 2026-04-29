@@ -10,7 +10,7 @@
 **Task:** Add scheduled OpenClaw-style AI digest workflow.
 **Done:**
 - Added GitHub Actions workflow to run daily at 12:00 BJT with manual trigger.
-- Implemented Python digest generator for weekly AI tech hotspots.
+- Implemented Python digest generator for a rolling 7-day AI tech digest.
 - Added webhook-first delivery with GitHub Issue fallback.
 - Updated long-term memory with the new automation.
 

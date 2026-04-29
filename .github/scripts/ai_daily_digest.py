@@ -136,14 +136,14 @@ def build_digest(output_path: str, title_path: str) -> None:
         seen_links.add(item["link"])
         unique_items.append(item)
 
-    title = f"推送日报 | AI 科技热点周报 | {now_bjt:%Y-%m-%d}"
+    title = f"推送日报 | AI 科技热点（近7天） | {now_bjt:%Y-%m-%d}"
     lines = [
-        "# 推送日报 | AI 科技热点周报",
+        "# 推送日报 | AI 科技热点（近7天）",
         f"- 生成时间：{now_bjt:%Y-%m-%d %H:%M}（北京时间）",
         "- 覆盖范围：最近 7 天",
         "- 数据源：" + "、".join(source.name for source in SOURCES),
         "",
-        "## 本周热点",
+        "## 近7天热点",
     ]
 
     if unique_items:

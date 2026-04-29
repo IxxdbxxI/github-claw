@@ -1,4 +1,4 @@
-name: OpenClaw AI Digest
+name: OpenClaw AI Daily Digest (7-day rolling)
 
 on:
   schedule:
@@ -25,7 +25,7 @@ jobs:
       - name: Generate digest
         id: digest
         run: |
-          python .github/scripts/ai_weekly_digest.py --output digest.md --title-out title.txt
+          python .github/scripts/ai_daily_digest.py --output digest.md --title-out title.txt
           {
             echo "title<<EOF"
             cat title.txt

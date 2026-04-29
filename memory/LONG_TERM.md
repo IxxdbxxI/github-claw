@@ -29,13 +29,13 @@ continuity across GitHub Copilot sessions through files.
 |---|---|---|
 | 2026-04-29 | Initialized workspace with `AGENTS.md` + `memory/` | First-time setup per issue request |
 | 2026-04-29 | Added `.agents/skills/` skill system | Stable skill discovery, installation, and usage mechanism for Claw |
-| 2026-04-29 | Added daily OpenClaw AI digest workflow | Automated AI weekly digest pushed via webhook or GitHub Issues |
+| 2026-04-29 | Added daily OpenClaw AI digest workflow | Automated daily digest with rolling 7-day coverage via webhook or GitHub Issues |
 
 ## Known Context
 
 - No existing code or tooling in the repo (only `README.md` at init time).
 - No CI, linters, or tests configured yet — add structure only when needed.
-- Daily GitHub Actions workflow posts AI weekly digest; prefers `WEBHOOK_URL` secret, falls back to GitHub Issues.
+- Daily GitHub Actions workflow posts an AI digest covering the latest 7 days; prefers `WEBHOOK_URL` secret, falls back to GitHub Issues.
 
 ## Skill System
 
