@@ -19,10 +19,10 @@ so context accumulates rather than disappearing after each conversation.
 
 ## Issue Automation
 
-This repo includes an Issue workflow that:
+This repo includes an issue workflow that:
 
-- Replies to every newly opened Issue with a short confirmation and info request.
-- Assigns bug Issues to the GitHub Copilot coding agent so it can open a fix PR.
+- Replies to every newly opened issue with a short confirmation and info request.
+- Assigns bug issues to the GitHub Copilot coding agent so it can open a fix PR.
 
 **Configuration (required):**
 
@@ -31,6 +31,6 @@ This repo includes an Issue workflow that:
 
 **Bug detection rules (auto-assign):**
 
-- Issue has a `bug`-type label, **or**
-- Issue body includes clear bug template sections: steps to reproduce + expected + actual behavior
+- The issue has a `bug`-type label, **or**
+- The issue body includes clear bug template sections: steps to reproduce + expected + actual behavior
   (supports English/Chinese keywords).

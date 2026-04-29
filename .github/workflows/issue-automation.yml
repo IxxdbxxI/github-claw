@@ -87,5 +87,7 @@ jobs:
                 assignees: [copilotAssignee],
               });
             } catch (error) {
-              core.warning(`Failed to assign Copilot: ${error.message}`);
+              core.warning(
+                `Failed to assign ${copilotAssignee} to issue #${issue.number}: ${error.message}`,
+              );
             }
