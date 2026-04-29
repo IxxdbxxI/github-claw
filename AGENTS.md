@@ -24,6 +24,11 @@ memory/
   LONG_TERM.md      ← persistent facts: preferences, decisions, learned context
   LOG.md            ← rolling session log (recent activity, temporary notes)
   archive/          ← archived logs (LOG-YYYY.md) — created when LOG.md grows large
+.agents/
+  skills/           ← project-level skills (see §7)
+    README.md       ← skill index + convention reference
+    _template/      ← copy this to create a new skill
+    <skill-name>/   ← one directory per installed skill
 README.md           ← public-facing description of the repo
 ```
 
@@ -51,10 +56,11 @@ If it matters, write it to a file and commit it.
 For every task:
 
 1. **Read** `AGENTS.md` (this file) and `memory/LONG_TERM.md` to restore context.
-2. **Understand** the request; ask one clarifying question if truly needed.
-3. **Act** — make focused, minimal changes.
-4. **Verify** — lint / build / test if the repo has those tools.
-5. **Close out** (see §5 below).
+2. **Discover skills** — list `.agents/skills/` and read each `skill.yml` to know available capabilities.
+3. **Understand** the request; ask one clarifying question if truly needed.
+4. **Act** — make focused, minimal changes; apply relevant skills where appropriate.
+5. **Verify** — lint / build / test if the repo has those tools.
+6. **Close out** (see §5 below).
 
 ---
 
@@ -76,3 +82,36 @@ After completing any task:
 - **Extensible, not over-engineered** — add structure only when it earns its keep.
 - **Commit early, commit often** — small commits beat large ones.
 - **Honest memory** — if something is uncertain, mark it `[?]` in the memory file.
+
+---
+
+## 7. Skills
+
+Skills are reusable capabilities stored in `.agents/skills/`. Each skill lives in its own subdirectory.
+
+### Directory convention
+
+```
+.agents/skills/<skill-name>/
+├── skill.yml   ← manifest: name, version, description, usage, tags, requires
+└── README.md   ← human-readable explanation + trigger instructions
+```
+
+Use `.agents/skills/_template/` as the canonical starting point for new skills.
+
+### Discovery
+At the start of every session, after reading `AGENTS.md` and `memory/LONG_TERM.md`,
+list `.agents/skills/` and read each `skill.yml` to know what is available.
+
+### Installation
+Create a new subdirectory under `.agents/skills/` with at minimum `skill.yml` + `README.md`,
+then add a row to the table in `.agents/skills/README.md` and commit.
+
+### Usage
+Trigger a skill by reading its `README.md` for instructions, then follow the defined
+`usage` pattern described in its `skill.yml`.
+
+### Rules
+- Directory name **must** match the `name` field in `skill.yml`.
+- `_template` is a reserved name — never deploy it as a real skill.
+- Keep each skill self-contained; list external dependencies in `requires`.

@@ -28,8 +28,16 @@ continuity across GitHub Copilot sessions through files.
 | Date | Decision | Rationale |
 |---|---|---|
 | 2026-04-29 | Initialized workspace with `AGENTS.md` + `memory/` | First-time setup per issue request |
+| 2026-04-29 | Added `.agents/skills/` skill system | Stable skill discovery, installation, and usage mechanism for Claw |
 
 ## Known Context
 
 - No existing code or tooling in the repo (only `README.md` at init time).
 - No CI, linters, or tests configured yet — add structure only when needed.
+
+## Skill System
+
+- Skills live in `.agents/skills/<skill-name>/`, each with `skill.yml` + `README.md`.
+- `_template/` is the canonical template for new skills.
+- Claw must discover skills at session start by reading `.agents/skills/` directory.
+- Installing a skill = creating its directory + committing to the repo.
