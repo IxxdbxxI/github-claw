@@ -176,7 +176,9 @@ def build_digest(output_path: str, title_path: str) -> None:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate weekly AI digest.")
+    parser = argparse.ArgumentParser(
+        description="Generate daily AI digest covering the past 7 days."
+    )
     parser.add_argument("--output", required=True, help="Path to digest markdown file.")
     parser.add_argument("--title-out", required=True, help="Path to title text file.")
     return parser.parse_args(argv)
