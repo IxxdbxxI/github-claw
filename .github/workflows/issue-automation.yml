@@ -1,0 +1,91 @@
+name: Issue automation
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  automate:
+    if: ${{ github.event.issue.pull_request == null }}
+    runs-on: ubuntu-latest
+    env:
+      COPILOT_ASSIGNEE: ${{ vars.COPILOT_ASSIGNEE || 'github-copilot[bot]' }}
+    steps:
+      - name: Auto reply and assign Copilot for bugs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+            const issueBody = (issue.body || '').toLowerCase();
+            const labels = (issue.labels || []).map((label) => (label.name || '').toLowerCase());
+
+            const bugLabels = new Set([
+              'bug',
+              'type: bug',
+              'type/bug',
+              'kind/bug',
+              'bugfix',
+              '🐛 bug',
+            ]);
+
+            const hasBugLabel = labels.some((label) => bugLabels.has(label));
+
+            const hasSteps =
+              issueBody.includes('steps to reproduce') ||
+              issueBody.includes('repro steps') ||
+              issueBody.includes('复现步骤');
+            const hasExpected =
+              issueBody.includes('expected behavior') ||
+              issueBody.includes('expected behaviour') ||
+              issueBody.includes('预期行为');
+            const hasActual =
+              issueBody.includes('actual behavior') ||
+              issueBody.includes('actual behaviour') ||
+              issueBody.includes('实际行为');
+            const hasBugTemplate = hasSteps && hasExpected && hasActual;
+
+            const isBug = hasBugLabel || hasBugTemplate;
+
+            const copilotAssignee = process.env.COPILOT_ASSIGNEE || '';
+            const assignees = (issue.assignees || []).map((assignee) =>
+              (assignee.login || '').toLowerCase(),
+            );
+            const copilotNormalized = copilotAssignee.toLowerCase();
+            const alreadyAssigned =
+              copilotNormalized && assignees.includes(copilotNormalized);
+
+            if (action === 'opened') {
+              const commentBody = [
+                '感谢反馈！我们已收到该 Issue，会尽快处理。',
+                '为了更快定位问题，请补充：复现步骤、预期行为、实际行为、环境信息（版本/系统/日志）。',
+                '',
+                'Thanks for the report! We will take a look shortly.',
+                'Please add repro steps, expected vs actual behavior, and environment details (version/OS/logs) to speed up triage.',
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: commentBody,
+              });
+            }
+
+            if (!isBug || !copilotAssignee || alreadyAssigned) {
+              return;
+            }
+
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                assignees: [copilotAssignee],
+              });
+            } catch (error) {
+              core.warning(`Failed to assign Copilot: ${error.message}`);
+            }

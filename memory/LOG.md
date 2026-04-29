@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-04-29 (session 3)
+
+**Task:** Add Issue automation workflow for Copilot assignment.
+**Done:**
+- Added GitHub Actions workflow to comment on new Issues and assign Copilot for bugs.
+- Documented configuration and bug detection rules in README.
+
+**Outcome:** Issues are auto-acknowledged and bug reports can be routed to Copilot. ✓
+
+---
+
 ## 2026-04-29 (session 2)
 
 **Task:** Optimize workflow and AGENTS.md — add stable skill system.
