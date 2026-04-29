@@ -34,6 +34,7 @@ continuity across GitHub Copilot sessions through files.
 
 - No existing code or tooling in the repo (only `README.md` at init time).
 - No CI, linters, or tests configured yet — add structure only when needed.
+- 已新增可运行的多媒体处理平台：`frontend/` 为 Vue 多页面前端，`backend/` 为 Flask + SQLite + FFmpeg 后端。
 
 ## Skill System
 
