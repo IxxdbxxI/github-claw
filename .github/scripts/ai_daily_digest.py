@@ -25,6 +25,7 @@ SOURCES = [
     ),
     FeedSource(name="OpenAI Blog", url="https://openai.com/blog/rss"),
 ]
+BJT = ZoneInfo("Asia/Shanghai")
 
 
 def fetch_xml(url: str) -> bytes:
@@ -97,7 +98,7 @@ def safe_link(entry: dict) -> str:
 def build_digest(output_path: str, title_path: str) -> None:
     now_utc = dt.datetime.now(dt.timezone.utc)
     week_start = now_utc - dt.timedelta(days=7)
-    now_bjt = now_utc.astimezone(ZoneInfo("Asia/Shanghai"))
+    now_bjt = now_utc.astimezone(BJT)
     items: list[dict] = []
     errors: list[str] = []
 
@@ -149,7 +150,7 @@ def build_digest(output_path: str, title_path: str) -> None:
     if unique_items:
         for index, item in enumerate(unique_items[:12], start=1):
             published = (
-                item["published"].astimezone(ZoneInfo("Asia/Shanghai")).strftime("%Y-%m-%d")
+                item["published"].astimezone(BJT).strftime("%Y-%m-%d")
                 if item["published"]
                 else "未知时间"
             )

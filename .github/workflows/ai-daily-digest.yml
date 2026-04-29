@@ -39,11 +39,16 @@ jobs:
         run: |
           python - <<'PY' | curl -sS -X POST -H "Content-Type: application/json" -d @- "$WEBHOOK_URL"
           import json
-          with open("title.txt", "r", encoding="utf-8") as f:
-              title = f.read().strip()
-          with open("digest.md", "r", encoding="utf-8") as f:
-              body = f.read()
-          print(json.dumps({"title": title, "body": body}, ensure_ascii=False))
+          import sys
+          try:
+              with open("title.txt", "r", encoding="utf-8") as f:
+                  title = f.read().strip()
+              with open("digest.md", "r", encoding="utf-8") as f:
+                  body = f.read()
+              print(json.dumps({"title": title, "body": body}, ensure_ascii=False))
+          except Exception as exc:
+              print(f"Failed to build webhook payload: {exc}", file=sys.stderr)
+              raise
           PY
 
       - name: Create GitHub Issue
