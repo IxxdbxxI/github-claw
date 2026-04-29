@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -22,10 +23,37 @@ def clamp_int(value: str | None, minimum: int, maximum: int, default: int) -> in
     return max(minimum, min(maximum, parsed))
 
 
+ALLOWED_FLAGS = {
+    "-q:v",
+    "-compression_level",
+    "-quality",
+    "-c:a",
+    "-b:a",
+    "-c:v",
+    "-preset",
+    "-crf",
+    "-b:v",
+    "-movflags",
+}
+
+ALLOWED_VALUE_PATTERN = re.compile(r"^[a-zA-Z0-9_+.-]+$")
+
+
+def validate_args(args: list[str]) -> None:
+    for item in args:
+        if item.startswith("-"):
+            if item not in ALLOWED_FLAGS:
+                raise ProcessingError("检测到非法的转码参数。")
+        else:
+            if not ALLOWED_VALUE_PATTERN.match(item):
+                raise ProcessingError("检测到非法的转码参数值。")
+
+
 def run_ffmpeg(input_path: Path, output_path: Path, extra_args: list[str]) -> None:
     ensure_ffmpeg()
+    validate_args(extra_args)
     command = ["ffmpeg", "-y", "-i", str(input_path), *extra_args, str(output_path)]
-    result = subprocess.run(command, capture_output=True, text=True)
+    result = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         detail = result.stderr.strip() or "ffmpeg 处理失败。"
         raise ProcessingError(detail)

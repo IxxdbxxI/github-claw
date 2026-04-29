@@ -42,6 +42,16 @@ def normalize_format(value: str | None) -> str:
     return value.strip().lower()
 
 
+def ensure_safe_path(path: Path, base: Path) -> Path:
+    resolved = path.resolve()
+    base_resolved = base.resolve()
+    try:
+        resolved.relative_to(base_resolved)
+    except ValueError as exc:
+        raise ValueError("非法路径") from exc
+    return resolved
+
+
 def response_job(job_id: str, download_url: str | None = None):
     job = fetch_job(DB_PATH, job_id)
     payload = {"job": job, "download_url": download_url}
@@ -71,10 +81,10 @@ def handle_media(media_type: str):
     suffix = Path(safe_name).suffix.lower() if safe_name else ""
     if not suffix:
         suffix = ".bin"
-    input_path = UPLOAD_DIR / f"{job_id}{suffix}"
+    input_path = ensure_safe_path(UPLOAD_DIR / f"{job_id}{suffix}", UPLOAD_DIR)
     upload.save(input_path)
     output_extension = "jpg" if output_format == "jpeg" else output_format
-    output_path = OUTPUT_DIR / f"{job_id}.{output_extension}"
+    output_path = ensure_safe_path(OUTPUT_DIR / f"{job_id}.{output_extension}", OUTPUT_DIR)
 
     options = {
         "output_format": output_format,
@@ -118,7 +128,10 @@ def handle_media(media_type: str):
             )
     except ProcessingError as exc:
         update_job(DB_PATH, job_id, {"status": "failed", "error": str(exc)})
-        return jsonify({"error": str(exc), **response_job(job_id)}), 500
+        return jsonify({"error": "处理失败，请检查文件格式后重试。", **response_job(job_id)}), 500
+    except Exception as exc:  # noqa: BLE001
+        update_job(DB_PATH, job_id, {"status": "failed", "error": str(exc)})
+        return jsonify({"error": "处理失败，请稍后再试。", **response_job(job_id)}), 500
 
     output_size = output_path.stat().st_size if output_path.exists() else None
     update_job(DB_PATH, job_id, {"status": "completed", "output_size": output_size})
@@ -139,7 +152,7 @@ def job_download(job_id: str):
     job = fetch_job(DB_PATH, job_id)
     if not job or not job.get("output_path"):
         return jsonify({"error": "任务不存在或未生成输出。"}), 404
-    output_path = Path(job["output_path"])
+    output_path = ensure_safe_path(Path(job["output_path"]), OUTPUT_DIR)
     if not output_path.exists():
         return jsonify({"error": "输出文件不存在。"}), 404
     filename = f"{job_id}.{job.get('output_format') or output_path.suffix.lstrip('.')}"
@@ -147,4 +160,4 @@ def job_download(job_id: str):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
