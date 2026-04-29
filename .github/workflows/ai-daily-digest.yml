@@ -2,7 +2,7 @@ name: OpenClaw AI Daily Digest (7-day rolling)
 
 on:
   schedule:
-    # 每天北京时间 12:00 (UTC 04:00)
+    # Daily at 12:00 Beijing Time (UTC 04:00)
     - cron: "0 4 * * *"
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Send webhook (preferred)
-        if: ${{ secrets.WEBHOOK_URL }}
+        if: ${{ secrets.WEBHOOK_URL != '' }}
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
         run: |
@@ -52,7 +52,7 @@ jobs:
           PY
 
       - name: Create GitHub Issue
-        if: ${{ !secrets.WEBHOOK_URL }}
+        if: ${{ secrets.WEBHOOK_URL == '' }}
         uses: actions/github-script@v7
         with:
           script: |
