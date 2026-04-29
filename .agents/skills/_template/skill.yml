@@ -1,0 +1,9 @@
+name: skill-name-here
+version: 1.0.0
+description: "一句话描述该技能的用途。"
+usage: |
+  在对话中说"请使用 <skill-name> 技能完成 <任务>"，
+  或在工作流中直接引用该目录下的脚本/提示词文件。
+tags:
+  - example
+requires: []
