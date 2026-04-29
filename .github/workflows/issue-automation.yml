@@ -54,7 +54,7 @@ jobs:
             const assignees = (issue.assignees || []).map((assignee) =>
               (assignee.login || '').toLowerCase(),
             );
-            const copilotNormalized = copilotAssignee.toLowerCase();
+            const copilotNormalized = (copilotAssignee || '').toLowerCase();
             const alreadyAssigned =
               copilotNormalized && assignees.includes(copilotNormalized);
 
