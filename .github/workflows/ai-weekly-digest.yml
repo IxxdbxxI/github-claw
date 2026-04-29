@@ -1,0 +1,62 @@
+name: OpenClaw AI Digest
+
+on:
+  schedule:
+    # 每天北京时间 12:00 (UTC 04:00)
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  ai-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate digest
+        id: digest
+        run: |
+          python .github/scripts/ai_weekly_digest.py --output digest.md --title-out title.txt
+          {
+            echo "title<<EOF"
+            cat title.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Send webhook (preferred)
+        if: ${{ secrets.WEBHOOK_URL != '' }}
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          python - <<'PY' | curl -sS -X POST -H "Content-Type: application/json" -d @- "$WEBHOOK_URL"
+          import json
+          with open("title.txt", "r", encoding="utf-8") as f:
+              title = f.read().strip()
+          with open("digest.md", "r", encoding="utf-8") as f:
+              body = f.read()
+          print(json.dumps({"title": title, "body": body}, ensure_ascii=False))
+          PY
+
+      - name: Create GitHub Issue
+        if: ${{ secrets.WEBHOOK_URL == '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const title = fs.readFileSync("title.txt", "utf8").trim();
+            const body = fs.readFileSync("digest.md", "utf8");
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body
+            });

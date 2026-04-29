@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-04-29 (session 3)
+
+**Task:** Add scheduled OpenClaw-style AI digest workflow.
+**Done:**
+- Added GitHub Actions workflow to run daily at 12:00 BJT with manual trigger.
+- Implemented Python digest generator for weekly AI tech hotspots.
+- Added webhook-first delivery with GitHub Issue fallback.
+- Updated long-term memory with the new automation.
+
+**Outcome:** Daily AI digest now auto-posts as an issue or webhook payload. ✓
+
+---
+
 ## 2026-04-29 (session 2)
 
 **Task:** Optimize workflow and AGENTS.md — add stable skill system.
